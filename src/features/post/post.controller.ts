@@ -15,13 +15,24 @@ export class PostController {
       const page = Number(request.query?.page || 0);
       const size = Number(request.query?.size || 20);
 
-      const pageableResponse = await this.postService.findAll(page, size);
+      if (
+        !(Number.isInteger(page) && Number.isInteger(size)) ||
+        page < 0 ||
+        size < 0
+      ) {
+        response.status(HttpStatus.OK).json({
+          status: HttpStatus.INVALID,
+          message: '페이지와 크기는 정수값이어야함',
+        });
+      } else {
+        const pageableResponse = await this.postService.findAll(page, size);
 
-      response.status(HttpStatus.OK).json({
-        status: HttpStatus.OK,
-        message: 'success',
-        data: pageableResponse,
-      });
+        response.status(HttpStatus.OK).json({
+          status: HttpStatus.OK,
+          message: 'success',
+          data: pageableResponse,
+        });
+      }
     } catch (error) {
       next(error);
     }

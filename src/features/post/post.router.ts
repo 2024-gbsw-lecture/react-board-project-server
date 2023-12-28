@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { validateBody } from '@/middlewares/body';
+import { integerParamsMiddleware } from '@/middlewares/params';
 import { PostService } from './post.service';
 import { PostRepository } from './post.repository';
 import { PostController } from './post.controller';
@@ -12,7 +13,7 @@ const postController = new PostController(postService);
 export const postRouter = Router();
 
 postRouter.get('/', postController.findAll);
-postRouter.get('/:id', postController.findById);
+postRouter.get('/:id', integerParamsMiddleware('id'), postController.findById);
 postRouter.post(
   '/',
   authMiddleware,
@@ -21,8 +22,14 @@ postRouter.post(
 );
 postRouter.patch(
   '/:id',
+  integerParamsMiddleware('id'),
   authMiddleware,
   validateBody(UpdatePostDto),
   postController.update,
 );
-postRouter.delete('/:id', authMiddleware, postController.delete);
+postRouter.delete(
+  '/:id',
+  integerParamsMiddleware('id'),
+  authMiddleware,
+  postController.delete,
+);
