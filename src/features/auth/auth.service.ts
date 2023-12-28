@@ -12,12 +12,23 @@ import { UserRepository } from '../user/user.repository';
 export class AuthService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async signUp(signUpDto: SignUpDto) {
+  async signUp(signUpDto: SignUpDto): Promise<void> {
+    const user = await this.userRepository.findOneByEmail(signUpDto.email);
+
+    if (user !== null) {
+      throw new CustomError(HttpStatus.CONFLICT, '이미 사용중인 이메일');
+    }
+
     await this.userRepository.create(signUpDto);
   }
 
   async signIn(signInDto: SignInDto): Promise<TokenResponse> {
-    const user = await this.userRepository.findOneByEmail(signInDto.email);
+    const { email, password } = signInDto;
+
+    const user = await this.userRepository.findOneByEmailAndPassword(
+      email,
+      password,
+    );
 
     if (user === null) {
       throw new CustomError(HttpStatus.NOT_FOUND, '존재하지 않는 사용자');
