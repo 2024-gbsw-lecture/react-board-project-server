@@ -3,9 +3,13 @@ import { validateBody } from '@/middlewares/body';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserRepository } from '../user/user.repository';
+import { TokenRepository } from '../token/token.repository';
 import { RefreshTokenDto, SignInDto, SignUpDto } from './auth.dto';
 
-const authService = new AuthService(new UserRepository());
+const authService = new AuthService(
+  new UserRepository(),
+  new TokenRepository(),
+);
 
 const authController = new AuthController(authService);
 

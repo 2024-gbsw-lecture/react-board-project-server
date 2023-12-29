@@ -33,7 +33,14 @@ export const generateRefreshToken = (userId: number): string => {
   return refreshToken;
 };
 
-export const verifyToken = async (token: string): Promise<JwtPayload> => {
+type ErrorCallback = {
+  onExpired?: () => Promise<void>;
+};
+
+export const verifyToken = async (
+  token: string,
+  errorCallback?: ErrorCallback,
+): Promise<JwtPayload> => {
   try {
     const decodedToken = (await verify(token, dotenv.JWT_SECRET)) as JwtPayload;
 
@@ -69,6 +76,8 @@ export const verifyToken = async (token: string): Promise<JwtPayload> => {
       case 'EXPIRED_TOKEN':
       case 'jwt expired':
         message = '만료된 토큰';
+
+        await errorCallback?.onExpired?.call(undefined);
 
         break;
 

@@ -36,15 +36,4 @@ export class UserRepository {
       data: user,
     });
   };
-
-  saveRefreshToken = async (id: number, refreshToken: string) => {
-    await prismaClient.user.update({
-      where: {
-        id,
-      },
-      data: {
-        refreshToken,
-      },
-    });
-  };
 }

@@ -8,9 +8,13 @@ import { RefreshTokenDto, SignInDto, SignUpDto } from './auth.dto';
 import { CustomError } from '../../libs/custom-error';
 import { HttpStatus } from '../../enums/http';
 import { UserRepository } from '../user/user.repository';
+import { TokenRepository } from '../token/token.repository';
 
 export class AuthService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly tokenRepository: TokenRepository,
+  ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<void> {
     const user = await this.userRepository.findOneByEmail(signUpDto.email);
@@ -37,7 +41,7 @@ export class AuthService {
     const accessToken = generateAccessToken(user.id);
     const refreshToken = generateRefreshToken(user.id);
 
-    await this.userRepository.saveRefreshToken(user.id, refreshToken);
+    await this.tokenRepository.create(refreshToken, user.id);
 
     return {
       accessToken,
@@ -50,7 +54,20 @@ export class AuthService {
   ): Promise<TokenResponse> => {
     const { refreshToken } = refreshTokenDto;
 
-    const decodedToken = await verifyToken(refreshToken);
+    const existToken = await this.tokenRepository.findOneByToken(refreshToken);
+
+    if (existToken === null) {
+      throw new CustomError(
+        HttpStatus.UN_AUTHORIZATION,
+        '올바르지 않은 리프레쉬 토큰',
+      );
+    }
+
+    const decodedToken = await verifyToken(refreshToken, {
+      onExpired: async () => {
+        await this.tokenRepository.delete(existToken.id);
+      },
+    });
 
     const user = await this.userRepository.findOneById(decodedToken.id);
 
@@ -58,17 +75,10 @@ export class AuthService {
       throw new CustomError(HttpStatus.NOT_FOUND, '존재하지 않는 사용자');
     }
 
-    if (user.refreshToken !== refreshToken) {
-      throw new CustomError(
-        HttpStatus.UN_AUTHORIZATION,
-        '올바르지 않은 리프레쉬 토큰',
-      );
-    }
-
     const newAccessToken = generateAccessToken(user.id);
     const newRefreshToken = generateRefreshToken(user.id);
 
-    await this.userRepository.saveRefreshToken(user.id, newRefreshToken);
+    await this.tokenRepository.update(existToken.id, newRefreshToken);
 
     return {
       accessToken: newAccessToken,
