@@ -52,7 +52,6 @@ export const verifyToken = async (
 
     return decodedToken;
   } catch (error) {
-    console.log(error);
     let status: HttpStatus = HttpStatus.UN_AUTHORIZATION;
     let message = '';
 
@@ -64,16 +63,14 @@ export const verifyToken = async (
 
         break;
 
-      case 'TOKEN_IS_ARRAY':
-      case 'NO_TOKEN':
-      case 'INVALID_TOKEN':
-      case 'NO_USER':
+      case 'invalid token':
+      case 'jwt malformed':
+      case 'jwt signature is required':
       case 'invalid signature':
         message = '올바르지 않은 토큰';
 
         break;
 
-      case 'EXPIRED_TOKEN':
       case 'jwt expired':
         message = '만료된 토큰';
 
