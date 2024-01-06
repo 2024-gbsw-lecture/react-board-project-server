@@ -25,8 +25,8 @@ export class PostService {
     };
   };
 
-  findById = async (id: number): Promise<Post> => {
-    const post = await this.postRepository.findById(id);
+  findOneById = async (id: number): Promise<Post> => {
+    const post = await this.postRepository.findOneById(id);
 
     if (post === null) {
       throw new CustomError(HttpStatus.NOT_FOUND, '존재하지 않는 글');
@@ -39,9 +39,7 @@ export class PostService {
     createPostDto: CreatePostDto,
     userId: number,
   ): Promise<Post> => {
-    const post = await this.postRepository.create(createPostDto, userId);
-
-    return post;
+    return await this.postRepository.create(createPostDto, userId);
   };
 
   update = async (
@@ -49,7 +47,7 @@ export class PostService {
     updatePostDto: UpdatePostDto,
     userId: number,
   ): Promise<Post> => {
-    const post = await this.findById(id);
+    const post = await this.findOneById(id);
 
     if (post.userId !== userId) {
       throw new CustomError(HttpStatus.FORBIDDEN, '권한 없음');
@@ -61,7 +59,7 @@ export class PostService {
   };
 
   delete = async (id: number, userId: number): Promise<void> => {
-    const post = await this.findById(id);
+    const post = await this.findOneById(id);
 
     if (post.userId !== userId) {
       throw new CustomError(HttpStatus.FORBIDDEN, '권한 없음');

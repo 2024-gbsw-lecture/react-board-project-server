@@ -8,6 +8,7 @@ export const errorMiddleware = (
   response: Response,
   next: NextFunction,
 ) => {
+  console.log(error);
   const customError = error as CustomError;
 
   const status = customError?.status || HttpStatus.SERVER_ERROR;

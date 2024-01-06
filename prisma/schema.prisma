@@ -15,6 +15,7 @@ model User {
   email        String         @unique
   name         String
   posts        Post[]
+  comments     Comment[]
   RefreshToken RefreshToken[]
 
   @@map("users")
@@ -28,8 +29,22 @@ model Post {
   content   String   @db.Text
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId    Int?     @map("user_id")
+  comments  Comment[]
 
   @@map("posts")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  content   String   @db.Text
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int      @map("post_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    Int?     @map("user_id")
+
+  @@map("comments")
 }
 
 model RefreshToken {

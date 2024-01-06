@@ -34,7 +34,7 @@ export class PostRepository {
     ]);
   };
 
-  findById = async (id: number): Promise<Post | null> => {
+  findOneById = async (id: number): Promise<Post | null> => {
     return await prismaClient.post.findUnique({
       where: {
         id,

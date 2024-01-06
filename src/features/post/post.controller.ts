@@ -38,7 +38,7 @@ export class PostController {
     }
   };
 
-  findById = async (
+  findOneById = async (
     request: Request,
     response: Response,
     next: NextFunction,
@@ -46,7 +46,7 @@ export class PostController {
     try {
       const postId = Number(request.params.id);
 
-      const post = await this.postService.findById(postId);
+      const post = await this.postService.findOneById(postId);
 
       response.status(HttpStatus.OK).json({
         status: HttpStatus.OK,
