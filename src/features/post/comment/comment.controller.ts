@@ -12,9 +12,7 @@ export class CommentController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const postId = Number(request.params.postId);
-
-      const comments = await this.commentService.findAll(postId);
+      const comments = await this.commentService.findAll(request.post.id);
 
       response.status(HttpStatus.OK).json({
         status: HttpStatus.OK,
@@ -33,9 +31,8 @@ export class CommentController {
   ) => {
     try {
       const id = Number(request.params.id);
-      const postId = Number(request.params.postId);
 
-      const comment = await this.commentService.findOneById(id, postId);
+      const comment = await this.commentService.findOneById(id);
 
       response.status(HttpStatus.OK).json({
         status: HttpStatus.OK,
@@ -80,14 +77,12 @@ export class CommentController {
   ): Promise<void> => {
     try {
       const id = Number(request.params.id);
-      const postId = Number(request.params.postId);
 
       const commentDto = request.body as CommentDto;
 
       const comment = await this.commentService.update(
         id,
         commentDto,
-        postId,
         request.user.id,
       );
 
@@ -108,9 +103,8 @@ export class CommentController {
   ): Promise<void> => {
     try {
       const id = Number(request.params.id);
-      const postId = Number(request.params.postId);
 
-      await this.commentService.delete(id, postId, request.user.id);
+      await this.commentService.delete(id, request.user.id);
 
       response.status(HttpStatus.OK).json({
         status: HttpStatus.OK,
