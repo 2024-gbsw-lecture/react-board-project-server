@@ -6,15 +6,19 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  signUp = async (request: Request, response: Response) => {
-    const signUpDto = request.body as SignUpDto;
+  signUp = async (request: Request, response: Response, next: NextFunction) => {
+    try {
+      const signUpDto = request.body as SignUpDto;
 
-    await this.authService.signUp(signUpDto);
+      await this.authService.signUp(signUpDto);
 
-    response.status(HttpStatus.OK).json({
-      status: HttpStatus.OK,
-      message: 'success',
-    });
+      response.status(HttpStatus.OK).json({
+        status: HttpStatus.OK,
+        message: 'success',
+      });
+    } catch (error) {
+      next(error);
+    }
   };
 
   signIn = async (request: Request, response: Response, next: NextFunction) => {
